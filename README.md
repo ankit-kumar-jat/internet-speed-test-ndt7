@@ -1,6 +1,10 @@
-# templates/spa
+# Internet speed tester ndt7
 
-This template leverages [Remix SPA Mode](https://remix.run/docs/en/main/guides/spa-mode) to build your app as a Single-Page Application using [Client Data](https://remix.run/docs/en/main/guides/client-data) for all of your data loads and mutations.
+Check your Internet speed in under 30 seconds. The speed test usually transfers less than 40 MB of data, but may transfer more data on fast connections.
+
+To run the test, you'll be connected to [Measurement Lab](https://www.measurementlab.net/) (M-Lab) and your IP address will be shared with them and processed by them in accordance with their [privacy policy](https://www.measurementlab.net/privacy/). M-Lab conducts the test and publicly publishes all test results to promote Internet research. Published information includes your IP address and test results, but doesn’t include any other information about you as an Internet user.
+
+This project leverages [Remix SPA Mode](https://remix.run/docs/en/main/guides/spa-mode) to build your app as a Single-Page Application using [Client Data](https://remix.run/docs/en/main/guides/client-data) for all of your data loads and mutations.
 
 ## Setup
 
