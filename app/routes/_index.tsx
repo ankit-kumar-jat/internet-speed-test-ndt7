@@ -33,6 +33,7 @@ type TestStates =
 type Result = {
   downloadSpeed: number;
   uploadSpeed: number;
+  latency: number;
 };
 
 export default function Index() {
@@ -43,6 +44,7 @@ export default function Index() {
   const [result, setResult] = useState<Result>({
     downloadSpeed: 0,
     uploadSpeed: 0,
+    latency: 0,
   });
 
   const handleStartTest = () => {
@@ -50,34 +52,40 @@ export default function Index() {
     setCurrentSpeed(0);
     setServerLocation(undefined);
     ndt7.test(
-      {
-        userAcceptedDataPolicy: true,
-      },
+      { userAcceptedDataPolicy: true },
       {
         serverChosen: (server: Server) => {
-          console.log("🚀 ~ handleStartTest ~ Server:", server);
+          console.log("🚀 ~ handleStartTest ~ serverChosen ~ Server:", server);
           setTestState("downloading");
           setServerLocation(server.location);
         },
         downloadMeasurement: (data: Mesurement) => {
-          console.log("🚀 ~ handleStartTest ~ data:", data);
+          console.log(
+            "🚀 ~ handleStartTest ~ downloadMeasurement ~ data:",
+            data
+          );
           if (data.Source === "client") {
             setCurrentSpeed(data.Data.MeanClientMbps);
           }
         },
         downloadComplete: (data: CompleteMesurement) => {
+          console.log("🚀 ~ handleStartTest ~ downloadComplete ~ data:", data);
           // const serverBw =
           //   (data.LastServerMeasurement.BBRInfo.BW * 8) / 1000000;
           const clientGoodput = data.LastClientMeasurement.MeanClientMbps;
+          const latency = Math.round(
+            data.LastServerMeasurement.BBRInfo.MinRTT / 1000
+          );
           setTestState("uploading");
           setCurrentSpeed(0);
           setResult((prev) => ({
             ...prev,
             downloadSpeed: clientGoodput,
+            latency,
           }));
         },
         uploadMeasurement: (data: Mesurement) => {
-          console.log("🚀 ~ handleStartTest ~ data:", data);
+          console.log("🚀 ~ handleStartTest ~ uploadMeasurement ~ data:", data);
           if (data.Source === "server") {
             const speed =
               (data.Data.TCPInfo.BytesReceived /
@@ -88,6 +96,7 @@ export default function Index() {
           }
         },
         uploadComplete: (data: CompleteMesurement) => {
+          console.log("🚀 ~ handleStartTest ~ uploadComplete ~ data:", data);
           const bytesReceived =
             data.LastServerMeasurement.TCPInfo.BytesReceived;
           const elapsed = data.LastServerMeasurement.TCPInfo.ElapsedTime;
@@ -121,12 +130,16 @@ export default function Index() {
           <Gauge speed={currentSpeed} testState={testState} />
         </div>
         {testState !== "idle" && (
-          <p>
+          <p className="text-sm">
             {testState === "connecting" ? (
               "Finding Server..."
             ) : (
               <>
-                Server: {serverLocation?.city}, {serverLocation?.country}
+                <span className="opacity-75">Server:</span>
+                <span>
+                  {" "}
+                  {serverLocation?.city}, {serverLocation?.country}
+                </span>
               </>
             )}
           </p>
@@ -154,48 +167,54 @@ export default function Index() {
 
 const ResultSection = ({ result }: { result: Result }) => {
   return (
-    <div className="flex gap-4 max-w-sm justify-around w-full">
-      <div className="flex gap-2 items-center">
-        <div className="bg-green-400/15 rounded-full p-4">
-          <ArrowDownIcon className="w-6 h-6 text-green-500" />
+    <>
+      <p className="text-sm -mt-3">
+        <span className="opacity-75">Latency:</span>
+        <span> {result.latency} ms</span>
+      </p>
+      <div className="flex gap-4 max-w-sm justify-around w-full">
+        <div className="flex gap-2 items-center">
+          <div className="bg-green-400/15 rounded-full p-4">
+            <ArrowDownIcon className="w-6 h-6 text-green-500" />
+          </div>
+          <div>
+            <p className="text-sm opacity-75">Download</p>
+            <p>
+              <span className="text-xl font-semibold">
+                {result.downloadSpeed.toFixed(2)}
+              </span>{" "}
+              Mbps
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm opacity-75">Download</p>
-          <p>
-            <span className="text-xl font-semibold">
-              {result.downloadSpeed.toFixed(2)}
-            </span>{" "}
-            Mbps
-          </p>
+        <div className="flex gap-2 items-center">
+          <div className="bg-yellow-400/15 rounded-full p-4">
+            <ArrowUpIcon className="w-6 h-6 text-yellow-500" />
+          </div>
+          <div>
+            <p className="text-sm opacity-75">Upload</p>
+            <p>
+              <span className="text-xl font-semibold">
+                {result.uploadSpeed.toFixed(2)}
+              </span>{" "}
+              Mbps
+            </p>
+          </div>
         </div>
       </div>
-      <div className="flex gap-2 items-center">
-        <div className="bg-yellow-400/15 rounded-full p-4">
-          <ArrowUpIcon className="w-6 h-6 text-yellow-500" />
-        </div>
-        <div>
-          <p className="text-sm opacity-75">Upload</p>
-          <p>
-            <span className="text-xl font-semibold">
-              {result.uploadSpeed.toFixed(2)}
-            </span>{" "}
-            Mbps
-          </p>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
 const PrivacyNotice = () => {
   return (
     <div className="max-w-xl text-center">
-      <p className="text-base opacity-75 mb-4">
+      <p className="text-sm opacity-75 mb-4">
         Check your Internet speed in under 30 seconds. The speed test usually
         transfers less than 40 MB of data, but may transfer more data on fast
         connections.
       </p>
-      <p className="text-sm opacity-75 ">
+      <p className="text-xs opacity-75 ">
         *To run the test, you'll be connected to{" "}
         <a
           href="https://www.measurementlab.net/"
