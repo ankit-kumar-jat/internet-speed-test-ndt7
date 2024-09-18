@@ -13,7 +13,7 @@ import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Check internet speed test right now" },
+    { title: "Check your internet speed right now" },
     {
       name: "description",
       content:

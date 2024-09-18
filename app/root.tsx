@@ -1,15 +1,14 @@
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
 
-import "~/tailwind.css";
+import "./tailwind.css";
 
-export default function App() {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -19,11 +18,18 @@ export default function App() {
         <Links />
       </head>
       <body className="min-h-full bg-[#0A0E11] text-white">
-        <Outlet />
+        {children}
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );
+}
+
+export default function App() {
+  return <Outlet />;
+}
+
+export function HydrateFallback() {
+  return <p>Loading...</p>;
 }
