@@ -3,8 +3,10 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  base: "/internet-speed-test-ndt7/",
   plugins: [
     remix({
+      basename: "/internet-speed-test-ndt7/",
       ssr: false,
       future: {
         v3_fetcherPersist: true,
